@@ -1,0 +1,25 @@
+sequence-diagram
+// 3. 포인트 사용 내역 조회
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+PointController [icon: code, color: gray]
+PointService [icon: settings, color: blue]
+PointHistoryStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > PointController: 포인트 사용 내역 조회 요청 [color: "blue", labelColor: "white"]
+PointController > PointService: 포인트 사용 내역 조회 요청 [color: "blue", labelColor: "white"]
+PointService > PointHistoryStore: 포인트 사용 내역 조회 [color: "blue", labelColor: "white"]
+PointHistoryStore --> PointService: 사용 내역 [color: "blue", labelColor: "white"]
+PointService --> PointController: 사용 내역 전달 [color: "blue", labelColor: "white"]
+PointController --> 사용자: 200 OK, 사용 내역 [color: "orange", labelColor: "white"]
+
+// 예외 흐름 1: 포인트 내역 없음 [red]
+사용자 > PointController: 포인트 사용 내역 조회 요청 [color: "red", labelColor: "white"]
+PointController > PointService: 포인트 사용 내역 조회 요청 [color: "red", labelColor: "white"]
+PointService > PointHistoryStore: 포인트 사용 내역 조회 [color: "red", labelColor: "white"]
+PointHistoryStore --> PointService: null [color: "red", labelColor: "white"]
+PointService --> PointController: 내역 없음 → NoHistoryFoundException [color: "red", labelColor: "white"]
+PointController --> 사용자: 404 Not Found (포인트 사용 내역이 존재하지 않습니다) [color: "red", labelColor: "white"]

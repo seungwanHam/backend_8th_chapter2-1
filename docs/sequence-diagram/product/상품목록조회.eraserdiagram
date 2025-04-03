@@ -1,0 +1,25 @@
+sequence-diagram
+
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+ProductController [icon: code, color: gray]
+ProductService [icon: settings, color: green]
+ProductStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > ProductController: 상품 목록 조회 요청 [color: "blue", labelColor: "white"]
+ProductController > ProductService: 상품 목록 조회 요청 [color: "blue", labelColor: "white"]
+ProductService > ProductStore: 상품 목록 조회 [color: "blue", labelColor: "white"]
+ProductStore --> ProductService: 상품 목록 반환 [color: "blue", labelColor: "white"]
+ProductService --> ProductController: 상품 목록 전달 [color: "blue", labelColor: "white"]
+ProductController --> 사용자: 200 OK, 상품 목록 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 상품 목록 조회 실패 [red]
+사용자 > ProductController: 상품 목록 조회 요청 [color: "red", labelColor: "white"]
+ProductController > ProductService: 상품 목록 조회 요청 [color: "red", labelColor: "white"]
+ProductService > ProductStore: 상품 목록 조회 [color: "red", labelColor: "white"]
+ProductStore --> ProductService: null [color: "red", labelColor: "white"]
+ProductService --> ProductController: 조회 실패 → NoProductsFoundException [color: "red", labelColor: "white"]
+ProductController --> 사용자: 404 Not Found (상품 목록을 찾을 수 없음) [color: "red", labelColor: "white"]

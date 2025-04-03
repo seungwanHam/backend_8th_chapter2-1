@@ -1,0 +1,28 @@
+sequence-diagram
+
+// 주문 생성
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+OrderController [icon: code, color: gray]
+OrderService [icon: settings, color: blue]
+OrderStore [icon: database, color: green]
+EventBus [icon: cloud, color: purple]
+
+// 정상 흐름 [blue]
+사용자 > OrderController: 주문 생성 요청 (productId, quantity) [color: "blue", labelColor: "white"]
+OrderController > OrderService: 주문 생성 요청 [color: "blue", labelColor: "white"]
+OrderService > OrderStore: 주문 저장 [color: "blue", labelColor: "white"]
+OrderStore --> OrderService: 주문 정보 저장 [color: "blue", labelColor: "white"]
+OrderService > EventBus: 주문 생성 이벤트 발행 [color: "blue", labelColor: "white"]
+OrderService --> OrderController: 주문 생성 완료 [color: "blue", labelColor: "white"]
+OrderController --> 사용자: 201 CREATED, 주문 정보 [color: "orange", labelColor: "white"]
+
+// 예외 흐름 1: 상품 정보 오류 [red]
+사용자 > OrderController: 주문 생성 요청 (productId, quantity) [color: "red", labelColor: "white"]
+OrderController > OrderService: 주문 생성 요청 [color: "red", labelColor: "white"]
+OrderService > OrderStore: 상품 조회 [color: "red", labelColor: "white"]
+OrderStore --> OrderService: 상품 없음 [color: "red", labelColor: "white"]
+OrderService --> OrderController: 예외 전달 → ProductNotFoundException [color: "red", labelColor: "white"]
+OrderController --> 사용자: 400 Bad Request (상품 정보 없음) [color: "red", labelColor: "white"]

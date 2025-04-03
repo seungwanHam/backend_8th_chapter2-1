@@ -1,0 +1,59 @@
+sequence-diagram
+
+// 결제 처리
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+PaymentController [icon: code, color: purple]
+PaymentService [icon: settings, color: purple]
+PointService [icon: wallet, color: blue]
+CouponService [icon: gift, color: pink]
+ProductService [icon: shopping-cart, color: green]
+OrderStore [icon: database, color: green]
+PointStore [icon: wallet, color: blue]
+CouponStore [icon: gift, color: pink]
+ProductStore [icon: shopping-cart, color: green]
+
+// 정상 흐름 [blue]
+사용자 > PaymentController: 결제 요청 (orderId, couponId, pointAmount) [color: "blue", labelColor: "white"]
+PaymentController > PaymentService: 결제 처리 요청 [color: "blue", labelColor: "white"]
+PaymentService > PointService: 포인트 차감 요청 [color: "blue", labelColor: "white"]
+PointService --> PaymentService: 포인트 차감 완료 [color: "blue", labelColor: "white"]
+PointService > PointStore: 포인트 업데이트 [color: "blue", labelColor: "white"]
+PointStore --> PointService: 포인트 업데이트 완료 [color: "blue", labelColor: "white"]
+
+PaymentService > CouponService: 쿠폰 차감 요청 [color: "pink", labelColor: "white"]
+CouponService --> PaymentService: 쿠폰 차감 완료 [color: "pink", labelColor: "white"]
+CouponService > CouponStore: 쿠폰 상태 업데이트 [color: "pink", labelColor: "white"]
+CouponStore --> CouponService: 쿠폰 상태 업데이트 완료 [color: "pink", labelColor: "white"]
+
+PaymentService > ProductService: 재고 차감 요청 [color: "green", labelColor: "white"]
+ProductService --> PaymentService: 재고 차감 완료 [color: "green", labelColor: "white"]
+ProductService > ProductStore: 재고 업데이트 [color: "green", labelColor: "white"]
+ProductStore --> ProductService: 재고 업데이트 완료 [color: "green", labelColor: "white"]
+
+PaymentService > OrderStore: 결제 상태 업데이트 [color: "blue", labelColor: "white"]
+OrderStore --> PaymentService: 결제 상태 업데이트 완료 [color: "blue", labelColor: "white"]
+PaymentService --> PaymentController: 결제 완료 [color: "blue", labelColor: "white"]
+PaymentController --> 사용자: 200 OK, 결제 완료 [color: "orange", labelColor: "white"]
+
+// 예외 흐름 1: 포인트 차감 실패 [red]
+사용자 > PaymentController: 결제 요청 (orderId, couponId, pointAmount) [color: "red", labelColor: "white"]
+PaymentController > PaymentService: 결제 처리 요청 [color: "red", labelColor: "white"]
+PaymentService > PointService: 포인트 차감 요청 [color: "red", labelColor: "white"]
+PointService --> PaymentService: 포인트 부족 [color: "red", labelColor: "white"]
+PaymentService --> PaymentController: 예외 전달 → InsufficientPointsException [color: "red", labelColor: "white"]
+PaymentController --> 사용자: 400 Bad Request (포인트 부족) [color: "red", labelColor: "white"]
+
+// 예외 흐름 2: 쿠폰 차감 실패 [red]
+PaymentService > CouponService: 쿠폰 차감 요청 [color: "red", labelColor: "white"]
+CouponService --> PaymentService: 쿠폰 사용 불가 [color: "red", labelColor: "white"]
+PaymentService --> PaymentController: 예외 전달 → CouponInvalidException [color: "red", labelColor: "white"]
+PaymentController --> 사용자: 400 Bad Request (쿠폰 사용 불가) [color: "red", labelColor: "white"]
+
+// 예외 흐름 3: 재고 부족 [red]
+PaymentService > ProductService: 재고 차감 요청 [color: "red", labelColor: "white"]
+ProductService --> PaymentService: 재고 부족 [color: "red", labelColor: "white"]
+PaymentService --> PaymentController: 예외 전달 → OutOfStockException [color: "red", labelColor: "white"]
+PaymentController --> 사용자: 400 Bad Request (재고 부족) [color: "red", labelColor: "white"]
