@@ -1,0 +1,26 @@
+sequence-diagram
+
+// 장바구니 수정
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+OrderController [icon: code, color: gray]
+OrderService [icon: settings, color: blue]
+OrderStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > OrderController: 장바구니 수정 요청 (cartItemId, newQuantity) [color: "blue", labelColor: "white"]
+OrderController > OrderService: 장바구니 항목 수정 요청 [color: "blue", labelColor: "white"]
+OrderService > OrderStore: 장바구니 항목 수정 [color: "blue", labelColor: "white"]
+OrderStore --> OrderService: 수정된 장바구니 항목 [color: "blue", labelColor: "white"]
+OrderService --> OrderController: 장바구니 수정 완료 [color: "blue", labelColor: "white"]
+OrderController --> 사용자: 200 OK, 수정된 장바구니 항목 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 장바구니 항목 없음 [red]
+사용자 > OrderController: 장바구니 수정 요청 (cartItemId, newQuantity) [color: "red", labelColor: "white"]
+OrderController > OrderService: 장바구니 항목 수정 요청 [color: "red", labelColor: "white"]
+OrderService > OrderStore: 장바구니 항목 조회 [color: "red", labelColor: "white"]
+OrderStore --> OrderService: null [color: "red", labelColor: "white"]
+OrderService --> OrderController: 내역 없음 → ItemNotFoundException [color: "red", labelColor: "white"]
+OrderController --> 사용자: 404 Not Found (장바구니 항목 없음) [color: "red", labelColor: "white"]

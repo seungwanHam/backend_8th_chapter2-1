@@ -1,0 +1,29 @@
+sequence-diagram
+
+// 장바구니 담기
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+OrderController [icon: code, color: gray]
+OrderService [icon: settings, color: blue]
+ProductStore [icon: database, color: green]
+OrderStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > OrderController: 상품 담기 (productId, optionId, quantity) [color: "blue", labelColor: "white"]
+OrderController > OrderService: 장바구니에 상품 추가 요청 [color: "blue", labelColor: "white"]
+OrderService > ProductStore: 상품 및 옵션 조회 [color: "blue", labelColor: "white"]
+ProductStore --> OrderService: 상품 정보 [color: "blue", labelColor: "white"]
+OrderService > OrderStore: 장바구니에 상품 추가 [color: "blue", labelColor: "white"]
+OrderStore --> OrderService: 장바구니에 추가된 상품 정보 [color: "blue", labelColor: "white"]
+OrderService --> OrderController: 장바구니 추가 완료 [color: "blue", labelColor: "white"]
+OrderController --> 사용자: 200 OK, 장바구니 업데이트 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 재고 부족 [red]
+사용자 > OrderController: 상품 담기 (productId, optionId, quantity) [color: "red", labelColor: "white"]
+OrderController > OrderService: 장바구니에 상품 추가 요청 [color: "red", labelColor: "white"]
+OrderService > ProductStore: 상품 및 옵션 조회 [color: "red", labelColor: "white"]
+ProductStore --> OrderService: 재고 부족 [color: "red", labelColor: "white"]
+OrderService --> OrderController: 예외 전달 [color: "red", labelColor: "white"]
+OrderController --> 사용자: 400 Bad Request (재고 부족) [color: "red", labelColor: "white"]
