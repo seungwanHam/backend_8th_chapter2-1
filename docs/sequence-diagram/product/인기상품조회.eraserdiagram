@@ -1,0 +1,26 @@
+sequence-diagram
+
+// 인기 상품 조회
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+ProductController [icon: code, color: green]
+ProductService [icon: settings, color: green]
+ProductStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > ProductController: 인기 상품 조회 요청 [color: "blue", labelColor: "white"]
+ProductController > ProductService: 인기 상품 조회 요청 [color: "blue", labelColor: "white"]
+ProductService > ProductStore: 인기 상품 조회 [color: "blue", labelColor: "white"]
+ProductStore --> ProductService: 인기 상품 리스트 [color: "blue", labelColor: "white"]
+ProductService --> ProductController: 인기 상품 전달 [color: "blue", labelColor: "white"]
+ProductController --> 사용자: 200 OK, 인기 상품 리스트 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 인기 상품 조회 실패 [red]
+사용자 > ProductController: 인기 상품 조회 요청 [color: "red", labelColor: "white"]
+ProductController > ProductService: 인기 상품 조회 요청 [color: "red", labelColor: "white"]
+ProductService > ProductStore: 인기 상품 조회 [color: "red", labelColor: "white"]
+ProductStore --> ProductService: null [color: "red", labelColor: "white"]
+ProductService --> ProductController: 예외 전달 → NoPopularProductsException [color: "red", labelColor: "white"]
+ProductController --> 사용자: 404 Not Found (인기 상품 없음) [color: "red", labelColor: "white"]

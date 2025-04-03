@@ -1,0 +1,26 @@
+sequence-diagram
+
+// 결제 내역 조회
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+PaymentController [icon: code, color: purple]
+PaymentService [icon: settings, color: purple]
+PaymentStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > PaymentController: 결제 내역 조회 요청 [color: "blue", labelColor: "white"]
+PaymentController > PaymentService: 결제 내역 조회 요청 [color: "blue", labelColor: "white"]
+PaymentService > PaymentStore: 결제 내역 조회 [color: "blue", labelColor: "white"]
+PaymentStore --> PaymentService: 결제 내역 반환 [color: "blue", labelColor: "white"]
+PaymentService --> PaymentController: 결제 내역 전달 [color: "blue", labelColor: "white"]
+PaymentController --> 사용자: 200 OK, 결제 내역 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 결제 내역 없음 [red]
+사용자 > PaymentController: 결제 내역 조회 요청 [color: "red", labelColor: "white"]
+PaymentController > PaymentService: 결제 내역 조회 요청 [color: "red", labelColor: "white"]
+PaymentService > PaymentStore: 결제 내역 조회 [color: "red", labelColor: "white"]
+PaymentStore --> PaymentService: null [color: "red", labelColor: "white"]
+PaymentService --> PaymentController: 예외 전달 → NoPaymentHistoryFoundException [color: "red", labelColor: "white"]
+PaymentController --> 사용자: 404 Not Found (결제 내역 없음) [color: "red", labelColor: "white"]

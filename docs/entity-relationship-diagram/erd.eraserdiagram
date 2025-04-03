@@ -1,0 +1,84 @@
+entity-relationship-diagram
+
+User [color: orange] {
+  id PK
+  name
+  email
+  createdAt
+}
+
+Point [color: blue] {
+  id PK
+  userId FK
+  amount
+  updatedAt
+}
+
+Coupon [color: yellow] {
+  id PK
+  type
+  discountRate
+  totalCount
+  issuedCount
+  createdAt
+}
+
+UserCoupon [color: orange] {
+  id PK
+  userId FK
+  couponId FK
+  used
+  usedAt
+}
+
+Product [color: green] {
+  id PK
+  name
+  description
+  basePrice
+  createdAt
+}
+
+ProductOption [color: lightgreen] {
+  id PK
+  productId FK
+  name
+  price
+  stock
+  createdAt
+}
+
+Order [color: red] {
+  id PK
+  userId FK
+  totalPrice
+  status
+  createdAt
+}
+
+OrderItem [color: pink] {
+  id PK
+  orderId FK
+  productId FK
+  optionId FK
+  quantity
+  unitPrice
+  totalPrice
+}
+
+Payment [color: purple] {
+  id PK
+  orderId FK
+  userId FK
+  couponId FK
+  paidAmount
+  status
+  createdAt
+}
+
+PopularProductStat [color: teal] {
+  id PK
+  productId FK
+  date
+  soldCount
+}

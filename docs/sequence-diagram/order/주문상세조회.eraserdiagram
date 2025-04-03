@@ -1,0 +1,26 @@
+sequence-diagram
+
+// 주문 상세 조회
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+OrderController [icon: code, color: gray]
+OrderService [icon: settings, color: blue]
+OrderStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > OrderController: 주문 상세 조회 요청 (orderId) [color: "blue", labelColor: "white"]
+OrderController > OrderService: 주문 상세 조회 요청 [color: "blue", labelColor: "white"]
+OrderService > OrderStore: 주문 정보 조회 [color: "blue", labelColor: "white"]
+OrderStore --> OrderService: 주문 상세 정보 [color: "blue", labelColor: "white"]
+OrderService --> OrderController: 주문 상세 정보 전달 [color: "blue", labelColor: "white"]
+OrderController --> 사용자: 200 OK, 주문 상세 정보 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 주문 없음 [red]
+사용자 > OrderController: 주문 상세 조회 요청 (orderId) [color: "red", labelColor: "white"]
+OrderController > OrderService: 주문 상세 조회 요청 [color: "red", labelColor: "white"]
+OrderService > OrderStore: 주문 정보 조회 [color: "red", labelColor: "white"]
+OrderStore --> OrderService: null [color: "red", labelColor: "white"]
+OrderService --> OrderController: 예외 전달 → OrderNotFoundException [color: "red", labelColor: "white"]
+OrderController --> 사용자: 404 Not Found (주문 정보 없음) [color: "red", labelColor: "white"]

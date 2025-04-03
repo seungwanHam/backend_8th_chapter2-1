@@ -1,0 +1,43 @@
+sequence-diagram
+// colorMode bold
+styleMode plain
+typeface clean
+
+// 1. 포인트 충전
+
+사용자 [icon: user, color: orange]
+PointController [icon: code, color: gray]
+PointService [icon: settings, color: blue]
+PointValidator [icon: shield-check, color: gray]
+PointAccountStore [icon: database, color: green]
+PointHistoryStore [icon: database, color: green]
+
+// 정상 흐름
+사용자 > PointController: POST { amount: 10000 } [color: "blue", labelColor: "white"]
+PointController > PointService: 충전 요청 [color: "blue", labelColor: "white"]
+PointService > PointValidator: amount > 0 ? [color: "blue", labelColor: "white"]
+PointValidator --> PointService: OK [color: "blue", labelColor: "white"]
+PointService > PointAccountStore: 포인트 계정 조회 [color: "blue", labelColor: "white"]
+PointAccountStore --> PointService: { balance: 0 } [color: "blue", labelColor: "white"]
+PointService > PointAccountStore: balance += 10000 [color: "blue", labelColor: "white"]
+PointService > PointHistoryStore: 충전 이력 저장 [color: "blue", labelColor: "white"]
+PointService --> PointController: { balance: 10000 } [color: "blue", labelColor: "white"]
+PointController --> 사용자: 200 OK [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1
+사용자 > PointController: POST { amount: -1000 } [color: "red", labelColor: "white"]
+PointController > PointService: 충전 요청 [color: "red", labelColor: "white"]
+PointService > PointValidator: amount > 0 ? [color: "red", labelColor: "white"]
+PointValidator --> PointService: InvalidAmountException [color: "red", labelColor: "white"]
+PointService --> PointController: 예외 전달 [color: "red", labelColor: "white"]
+PointController --> 사용자: 400 Bad Request (충전 금액은 0 이상이어야 함) [color: "red", labelColor: "white"]
+
+// 예외 흐름 2
+사용자 > PointController: POST { amount: 5000 } [color: "red", labelColor: "white"]
+PointController > PointService: 충전 요청 [color: "red", labelColor: "white"]
+PointService > PointValidator: amount > 0 ? [color: "red", labelColor: "white"]
+PointValidator --> PointService: OK [color: "red", labelColor: "white"]
+PointService > PointAccountStore: 포인트 계정 조회 [color: "red", labelColor: "white"]
+PointAccountStore --> PointService: null [color: "red", labelColor: "white"]
+PointService --> PointController: PointAccountNotFoundException [color: "red", labelColor: "white"]
+PointController --> 사용자: 404 Not Found (포인트 계정이 존재하지 않음) [color: "red", labelColor: "white"]
