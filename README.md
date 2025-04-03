@@ -1,4 +1,4 @@
-# 📘 e-Commerce 프로젝트: STEP 3 분석 과제 (NestJS 기반 설계)
+# 📘 e-Commerce 프로젝트: STEP 4 실행 과제
 
 > 항해 플러스 백엔드 8기 Chapter 2-1
 
@@ -92,15 +92,16 @@
 ---
 
 ## ✅ 제출 체크리스트 (STEP 3)
-
 - [x] 전체 구현 마일스톤 작성
 - [x] 기능 요구사항 분석 완료
 - [x] 도메인 정의 완료
 - [x] 유즈케이스 정리 (16개)
 - [x] 시퀀스 다이어그램 (정상 + 예외 흐름)
 - [x] ERD, 클래스 다이어그램 작성
-- [] 컨트롤러 Swagger 명세 정의
-- [] 모듈별 `*.module.ts` 구성 완료
-- [] AppModule 통합 완료
-
-> ⚠ Swagger UI 구현 및 Mock API 실행은 **STEP 4 과제**에서 수행됩니다.
+  
+## ✅ 제출 체크리스트 (STEP 4)
+- [x] Swagger 명세 실행 환경 구성
+- [x] main.ts에 Swagger 설정 적용
+- [x] Mock API 구조 및 컨트롤러 구현
+- [x] Swagger에 Input/Output Schema 명시
+- [x] E2E 테스트 구현 및 실행
