@@ -5,7 +5,8 @@ export enum DiscountType {
 
 export enum CouponType {
   REGULAR = 'REGULAR',      // 일반 쿠폰
-  FIRST_COME = 'FIRST_COME' // 선착순 쿠폰
+  FIRST_COME = 'FIRST_COME', // 선착순 쿠폰
+  NORMAL = "NORMAL"
 }
 export class Coupon {
   couponId: string;
