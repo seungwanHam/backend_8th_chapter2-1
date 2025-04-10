@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 사용자 모델
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String
+  address       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  orders        Order[]
+  cart          Cart?
+  points        Point?
+  transactions  PointTransaction[]
+
+  @@map("users")
+}
+
+// 상품 모델
+model Product {
+  id          String          @id @default(uuid())
+  name        String
+  description String          @db.Text
+  basePrice   Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  options     ProductOption[]
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+// 상품 옵션 모델
+model ProductOption {
+  id        String      @id @default(uuid())
+  name      String
+  price     Int
+  stock     Int
+  productId String
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("product_options")
+}
+
+// 쿠폰 모델
+model Coupon {
+  id           String        @id @default(uuid())
+  code         String        @unique
+  name         String
+  description  String?
+  discountType String        // PERCENTAGE, FIXED_AMOUNT
+  discountValue Int
+  minOrderAmount Int
+  maxDiscountAmount Int?
+  startDate    DateTime
+  endDate      DateTime
+  isActive     Boolean       @default(true)
+  totalQuantity Int?
+  usedQuantity Int          @default(0)
+  createdAt    DateTime      @default(now())
+  userCoupons  UserCoupon[]
+
+  @@map("coupons")
+}
+
+// 사용자별 쿠폰 모델
+model UserCoupon {
+  id            String     @id @default(uuid())
+  userId        String
+  couponId      String
+  coupon        Coupon     @relation(fields: [couponId], references: [id])
+  isUsed        Boolean    @default(false)
+  usedAt        DateTime?
+  orderId       String?
+  issuedAt      DateTime   @default(now())
+  expiresAt     DateTime?
+
+  @@unique([userId, couponId])
+  @@map("user_coupons")
+}
+
+// 주문 모델
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  status          String
+  totalAmount     Int
+  paymentMethod   String
+  shippingAddress String
+  receiverName    String
+  receiverPhone   String
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  payment         Payment?
+
+  @@map("orders")
+}
+
+// 주문 항목 모델
+model OrderItem {
+  id          String        @id @default(uuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product       @relation(fields: [productId], references: [id])
+  optionId    String
+  option      ProductOption @relation(fields: [optionId], references: [id])
+  productName String
+  optionName  String
+  price       Int
+  quantity    Int
+  subtotal    Int
+
+  @@map("order_items")
+}
+
+// 결제 모델
+model Payment {
+  id          String    @id @default(uuid())
+  orderId     String    @unique
+  order       Order     @relation(fields: [orderId], references: [id])
+  status      String
+  method      String
+  amount      Int
+  paymentKey  String?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  canceledAt  DateTime?
+
+  @@map("payments")
+}
+
+// 포인트 모델
+model Point {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id])
+  balance   Int
+  updatedAt DateTime  @updatedAt
+
+  @@map("points")
+}
+
+// 포인트 거래 내역 모델
+model PointTransaction {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  type         String
+  amount       Int
+  balanceAfter Int
+  description  String
+  relatedId    String?
+  createdAt    DateTime @default(now())
+
+  @@map("point_transactions")
+}
+
+// 장바구니 모델
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+// 장바구니 항목 모델
+model CartItem {
+  id          String  @id @default(uuid())
+  cartId      String
+  cart        Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId   String
+  optionId    String
+  productName String
+  optionName  String
+  price       Int
+  quantity    Int
+
+  @@map("cart_items")
+}
