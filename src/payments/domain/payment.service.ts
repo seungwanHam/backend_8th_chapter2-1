@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Payment, PaymentMethod, PaymentStatus } from './payment.entity';
 import { PaymentRepository } from './payment.repository';
+import { PointService } from '../../points/domain/point.service';
 import { BusinessRuleException, EntityNotFoundException } from '../../common/exceptions/domain-exception';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class PaymentService {
   constructor(
     @Inject('PaymentRepository')
     private readonly paymentRepository: PaymentRepository,
+    private readonly pointService: PointService, // PointService 주입
   ) { }
 
   /**
@@ -33,11 +35,11 @@ export class PaymentService {
   }
 
   /**
-   * 결제 생성
+   * 결제 생성 (포인트 결제)
    */
   async createPayment(
     orderId: string,
-    method: PaymentMethod,
+    method: PaymentMethod = PaymentMethod.POINT,
     amount: number
   ): Promise<Payment> {
     // 이미 결제 정보가 있는지 확인
@@ -51,11 +53,11 @@ export class PaymentService {
   }
 
   /**
-   * 외부 결제 시스템을 통한 결제 처리
+   * 포인트 차감 및 결제 처리
    */
   async processPayment(
     paymentId: string,
-    paymentKey: string
+    userId: string
   ): Promise<Payment> {
     const payment = await this.getPaymentById(paymentId);
 
@@ -63,21 +65,34 @@ export class PaymentService {
       throw new BusinessRuleException('이미 처리된 결제입니다.');
     }
 
-    // 여기서 실제로는 외부 결제 시스템과의 통신을 수행
-    // 예: 결제 검증, 승인 등
+    try {
+      // 포인트 차감
+      await this.pointService.usePoint(
+        userId,
+        payment.amount,
+        payment.orderId
+      );
 
-    // 결제 완료 처리
-    payment.complete(paymentKey);
+      // 결제 완료 처리
+      payment.complete();
 
-    return this.paymentRepository.updateStatus(
-      paymentId,
-      PaymentStatus.COMPLETED,
-      paymentKey
-    );
+      return this.paymentRepository.updateStatus(
+        paymentId,
+        PaymentStatus.COMPLETED
+      );
+    } catch (error) {
+      // 포인트 차감 실패 시 결제 실패 처리
+      payment.fail();
+      await this.paymentRepository.updateStatus(
+        paymentId,
+        PaymentStatus.FAILED
+      );
+      throw new BusinessRuleException(`포인트 차감 실패: ${error.message}`);
+    }
   }
 
   /**
-   * 결제 취소
+   * 결제 취소 및 포인트 환불
    */
   async cancelPayment(
     paymentId: string,
@@ -89,21 +104,24 @@ export class PaymentService {
       throw new BusinessRuleException('취소할 수 없는 결제 상태입니다.');
     }
 
-    // 외부 결제 시스템과 통신하여 결제 취소 처리
-    // 예: PG사 결제 취소 API 호출
+    try {
+      // 포인트 환불
+      await this.pointService.chargePoint(
+        payment.userId,
+        payment.amount,
+        `주문취소(${payment.orderId}) 환불: ${reason}`
+      );
 
-    // 결제 취소 처리
-    payment.cancel();
+      // 결제 취소 처리
+      payment.cancel();
 
-    const updatedPayment = await this.paymentRepository.updateStatus(
-      paymentId,
-      PaymentStatus.CANCELED
-    );
-
-    return this.paymentRepository.setCanceledAt(
-      paymentId,
-      new Date()
-    );
+      return this.paymentRepository.updateStatus(
+        paymentId,
+        PaymentStatus.CANCELED
+      );
+    } catch (error) {
+      throw new BusinessRuleException(`포인트 환불 실패: ${error.message}`);
+    }
   }
 
   /**

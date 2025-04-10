@@ -40,14 +40,6 @@ export class PaymentController {
     return this.paymentFacade.processPayment(dto);
   }
 
-  @ApiOperation({ summary: '결제 검증' })
-  @ApiBody({ type: VerifyPaymentDto })
-  @ApiResponse({ status: 200, description: '결제 검증 성공' })
-  @Post('verify')
-  async verifyPayment(@Body() dto: VerifyPaymentDto) {
-    return this.paymentFacade.verifyPayment(dto);
-  }
-
   @ApiOperation({ summary: '결제 취소' })
   @ApiBody({ type: CancelPaymentDto })
   @ApiResponse({ status: 200, description: '결제 취소 성공' })

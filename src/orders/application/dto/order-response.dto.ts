@@ -13,6 +13,10 @@ export class OrderItemDto {
 
   @Expose()
   @IsString()
+  userId: string;
+
+  @Expose()
+  @IsString()
   productName: string;
 
   @Expose()

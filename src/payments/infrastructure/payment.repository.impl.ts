@@ -33,14 +33,14 @@ export class PaymentRepositoryImpl implements PaymentRepository {
 
   async createPayment(
     orderId: string,
-    method: PaymentMethod,
+    userId: string,
     amount: number
   ): Promise<Payment> {
     const payment = await this.prisma.payment.create({
       data: {
         orderId,
         status: PaymentStatus.PENDING,
-        method,
+        method: PaymentMethod.POINT,
         amount,
       },
     });
@@ -50,14 +50,9 @@ export class PaymentRepositoryImpl implements PaymentRepository {
 
   async updateStatus(
     paymentId: string,
-    status: PaymentStatus,
-    paymentKey?: string
+    status: PaymentStatus
   ): Promise<Payment> {
     const data: any = { status };
-
-    if (paymentKey) {
-      data.paymentKey = paymentKey;
-    }
 
     if (status === PaymentStatus.COMPLETED) {
       data.completedAt = new Date();
@@ -95,10 +90,10 @@ export class PaymentRepositoryImpl implements PaymentRepository {
     return new Payment({
       paymentId: prismaPayment.id,
       orderId: prismaPayment.orderId,
+      userId: prismaPayment.userId,
       status: prismaPayment.status as PaymentStatus,
-      method: prismaPayment.method as PaymentMethod,
+      method: PaymentMethod.POINT,
       amount: prismaPayment.amount,
-      paymentKey: prismaPayment.paymentKey,
       createdAt: prismaPayment.createdAt,
       completedAt: prismaPayment.completedAt,
       canceledAt: prismaPayment.canceledAt,

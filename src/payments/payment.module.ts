@@ -3,14 +3,15 @@ import { PaymentController } from './controller/payment.controller';
 import { PaymentFacade } from './application/payment.facade';
 import { PaymentService } from './domain/payment.service';
 import { PaymentRepositoryImpl } from './infrastructure/payment.repository.impl';
-import { DummyPaymentGateway } from './infrastructure/dummy-payment-gateway';
 import { PrismaModule } from '../prisma/prisma.module';
 import { OrderModule } from '../orders/order.module';
+import { PointModule } from '../points/point.module';
 
 @Module({
   imports: [
     PrismaModule,
     OrderModule,
+    PointModule,
   ],
   controllers: [PaymentController],
   providers: [
@@ -19,10 +20,6 @@ import { OrderModule } from '../orders/order.module';
     {
       provide: 'PaymentRepository',
       useClass: PaymentRepositoryImpl,
-    },
-    {
-      provide: 'PaymentGateway',
-      useClass: DummyPaymentGateway,
     },
   ],
   exports: [PaymentFacade],

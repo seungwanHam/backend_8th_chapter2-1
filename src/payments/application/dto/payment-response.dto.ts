@@ -9,6 +9,10 @@ export class PaymentDto {
 
   @Expose()
   @IsString()
+  userId: string;
+
+  @Expose()
+  @IsString()
   orderId: string;
 
   @Expose()

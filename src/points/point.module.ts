@@ -16,6 +16,6 @@ import { PrismaModule } from '../prisma/prisma.module';
       useClass: PointRepositoryImpl,
     },
   ],
-  exports: [PointFacade],
+  exports: [PointFacade, PointService],
 })
 export class PointModule { }

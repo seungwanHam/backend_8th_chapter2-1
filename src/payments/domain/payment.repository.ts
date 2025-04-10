@@ -1,4 +1,4 @@
-import { Payment, PaymentMethod, PaymentStatus } from './payment.entity';
+import { Payment, PaymentStatus } from './payment.entity';
 
 export interface PaymentRepository {
   findById(paymentId: string): Promise<Payment | null>;
@@ -6,14 +6,13 @@ export interface PaymentRepository {
 
   createPayment(
     orderId: string,
-    method: PaymentMethod,
+    userId: string,
     amount: number
   ): Promise<Payment>;
 
   updateStatus(
     paymentId: string,
-    status: PaymentStatus,
-    paymentKey?: string
+    status: PaymentStatus
   ): Promise<Payment>;
 
   setCompletedAt(

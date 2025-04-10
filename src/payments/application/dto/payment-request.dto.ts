@@ -6,6 +6,10 @@ export class ProcessPaymentDto {
   @IsNotEmpty()
   orderId: string;
 
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
+
   @IsEnum(PaymentMethod)
   method: PaymentMethod;
 
@@ -29,6 +33,10 @@ export class VerifyPaymentDto {
   @IsNotEmpty()
   orderId: string;
 
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
+
   @IsNumber()
   amount: number;
 }
@@ -37,6 +45,10 @@ export class CancelPaymentDto {
   @IsString()
   @IsNotEmpty()
   paymentId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
 
   @IsString()
   @IsNotEmpty()

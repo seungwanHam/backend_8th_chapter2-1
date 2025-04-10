@@ -11,8 +11,9 @@ describe('PaymentService', () => {
   const mockPayment = new Payment({
     paymentId: 'payment-1',
     orderId: 'order-1',
+    userId: 'user-1',
     status: PaymentStatus.PENDING,
-    method: PaymentMethod.CARD,
+    method: PaymentMethod.POINT,
     amount: 20000,
     createdAt: new Date(),
   });
@@ -83,17 +84,17 @@ describe('PaymentService', () => {
     it('결제가 성공적으로 생성되어야 합니다', async () => {
       repository.findByOrderId.mockResolvedValue(null);
       repository.createPayment.mockResolvedValue(mockPayment);
-
-      const result = await service.createPayment('order-1', PaymentMethod.CARD, 20000);
-
+  
+      const result = await service.createPayment('order-1', PaymentMethod.POINT, 20000);
+      
       expect(result).toEqual(mockPayment);
-      expect(repository.createPayment).toHaveBeenCalledWith('order-1', PaymentMethod.CARD, 20000);
+      expect(repository.createPayment).toHaveBeenCalledWith('order-1', PaymentMethod.POINT, 20000);
     });
 
     it('이미 결제가 존재하는 경우 BusinessRuleException을 발생시켜야 합니다', async () => {
       repository.findByOrderId.mockResolvedValue(mockPayment);
 
-      await expect(service.createPayment('order-1', PaymentMethod.CARD, 20000)).rejects.toThrow(BusinessRuleException);
+      await expect(service.createPayment('order-1', PaymentMethod.POINT, 20000)).rejects.toThrow(BusinessRuleException);
     });
   });
 
@@ -113,7 +114,6 @@ describe('PaymentService', () => {
       repository.updateStatus.mockResolvedValue({
         ...pendingPayment,
         status: PaymentStatus.COMPLETED,
-        paymentKey: 'payment-key-123',
         canCancel: () => false,
         cancel: () => { },
         fail: () => { }

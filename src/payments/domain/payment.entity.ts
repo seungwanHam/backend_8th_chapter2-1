@@ -6,18 +6,16 @@ export enum PaymentStatus {
 }
 
 export enum PaymentMethod {
-  CARD = 'CARD',
-  BANK_TRANSFER = 'BANK_TRANSFER',
   POINT = 'POINT',
 }
 
 export class Payment {
   paymentId: string;
   orderId: string;
+  userId: string;
   status: PaymentStatus;
   method: PaymentMethod;
   amount: number;
-  paymentKey?: string; // 외부 결제 시스템의 키
   createdAt: Date;
   completedAt?: Date;
   canceledAt?: Date;
@@ -25,20 +23,20 @@ export class Payment {
   constructor(props: {
     paymentId?: string;
     orderId: string;
+    userId: string;
     status: PaymentStatus;
     method: PaymentMethod;
     amount: number;
-    paymentKey?: string;
     createdAt?: Date;
     completedAt?: Date;
     canceledAt?: Date;
   }) {
     this.paymentId = props.paymentId;
     this.orderId = props.orderId;
+    this.userId = props.userId;
     this.status = props.status;
     this.method = props.method;
     this.amount = props.amount;
-    this.paymentKey = props.paymentKey;
     this.createdAt = props.createdAt || new Date();
     this.completedAt = props.completedAt;
     this.canceledAt = props.canceledAt;
@@ -59,29 +57,25 @@ export class Payment {
   }
 
   /**
-   * 결제 완료 처리
+   * 결제 완료 처리 (포인트 차감 후)
    */
-  complete(paymentKey?: string): void {
+  complete(): void {
     if (!this.canComplete()) {
       throw new Error('이 결제는 완료 처리할 수 없는 상태입니다.');
     }
-    
+
     this.status = PaymentStatus.COMPLETED;
     this.completedAt = new Date();
-    
-    if (paymentKey) {
-      this.paymentKey = paymentKey;
-    }
   }
 
   /**
-   * 결제 취소 처리
+   * 결제 취소 처리 (포인트 환불 포함)
    */
   cancel(): void {
     if (!this.canCancel()) {
       throw new Error('이 결제는 취소할 수 없는 상태입니다.');
     }
-    
+
     this.status = PaymentStatus.CANCELED;
     this.canceledAt = new Date();
   }
@@ -93,7 +87,7 @@ export class Payment {
     if (this.status !== PaymentStatus.PENDING) {
       throw new Error('이 결제는 실패 처리할 수 없는 상태입니다.');
     }
-    
+
     this.status = PaymentStatus.FAILED;
   }
 }
