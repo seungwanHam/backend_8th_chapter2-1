@@ -105,19 +105,6 @@ export class UserCouponDto {
   isAvailable: boolean;
 }
 
-export class CouponListResponseDto {
-  @Expose()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CouponDto)
-  items: CouponDto[];
-
-  @Expose()
-  @ValidateNested()
-  @Type(() => PaginationDto)
-  pagination: PaginationDto;
-}
-
 export class PaginationDto {
   @Expose()
   @IsNumber()
@@ -130,6 +117,19 @@ export class PaginationDto {
   @Expose()
   @IsNumber()
   limit: number;
+}
+
+export class CouponListResponseDto {
+  @Expose()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CouponDto)
+  items: CouponDto[];
+
+  @Expose()
+  @ValidateNested()
+  @Type(() => PaginationDto)
+  pagination: PaginationDto;
 }
 
 export class ApplyCouponResponseDto {

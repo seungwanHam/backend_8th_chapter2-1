@@ -3,6 +3,7 @@ import { ProductService } from '../domain/product.service';
 import { CreateProductDto, UpdateProductDto, ProductQueryDto } from './dto/product-request.dto';
 import { ProductDto, ProductListResponseDto, PopularProductDto } from './dto/product-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { BusinessRuleException } from 'src/common/exceptions/domain-exception';
 
 @Injectable()
 export class ProductFacade {
@@ -91,11 +92,13 @@ export class ProductFacade {
       description: dto.description,
       basePrice: dto.basePrice,
       options: dto.options.map(option => ({
-        optionId: '', // 생성 시에는 빈 값
+        optionId: '',
         name: option.name,
         price: option.price,
         stock: option.stock,
       })),
+      getOption: () => null,
+      hasStock: () => false
     });
 
     return plainToInstance(

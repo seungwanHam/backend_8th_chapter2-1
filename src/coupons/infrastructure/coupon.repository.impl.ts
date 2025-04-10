@@ -208,8 +208,11 @@ export class CouponRepositoryImpl implements CouponRepository {
   /**
    * 트랜잭션 시작
    */
-  async beginTransaction(): Promise<any> {
-    return await this.prisma.$transaction.start();
+  // 수정된 코드:
+  async beginTransaction() {
+    // 트랜잭션 객체를 생성하고 반환
+    const tx = this.prisma.$transaction;
+    return tx;
   }
 
   /**

@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client"
 }
 
 datasource db {
@@ -21,6 +22,7 @@ model User {
   cart          Cart?
   points        Point?
   transactions  PointTransaction[]
+  role String @default("USER") // 'USER', 'ADMIN' 등의 값
 
   @@map("users")
 }
@@ -65,11 +67,12 @@ model Coupon {
   startDate    DateTime
   endDate      DateTime
   isActive     Boolean       @default(true)
+  couponType   String        @default("NORMAL") // 'NORMAL' 또는 'FIRST_COME' 값
   totalQuantity Int?
   usedQuantity Int          @default(0)
+  remainingQuantity Int?
   createdAt    DateTime      @default(now())
   userCoupons  UserCoupon[]
-
   @@map("coupons")
 }
 
