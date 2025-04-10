@@ -1,0 +1,24 @@
+sequence-diagram
+// 2. 포인트 조회
+// styleMode plain
+typeface clean
+사용자 [icon: user, color: orange]
+PointController [icon: code, color: gray]
+PointService [icon: settings, color: blue]
+PointAccountStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > PointController: 포인트 조회 요청 [color: "blue", labelColor: "white"]
+PointController > PointService: 포인트 조회 실행 요청 [color: "blue", labelColor: "white"]
+PointService > PointAccountStore: 포인트 계정 조회 [color: "blue", labelColor: "white"]
+PointAccountStore --> PointService: 잔액 10000원 [color: "blue", labelColor: "white"]
+PointService --> PointController: 포인트 잔액 전달 [color: "blue", labelColor: "white"]
+PointController --> 사용자: 200 OK, balance: 10000 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 포인트 계정 없음 [red]
+사용자 > PointController: 포인트 조회 요청 [color: "red", labelColor: "white"]
+PointController > PointService: 포인트 조회 실행 요청 [color: "red", labelColor: "white"]
+PointService > PointAccountStore: 포인트 계정 조회 [color: "red", labelColor: "white"]
+PointAccountStore --> PointService: null [color: "red", labelColor: "white"]
+PointService --> PointController: 계정 없음 → PointAccountNotFoundException [color: "red", labelColor: "white"]
+PointController --> 사용자: 404 Not Found (포인트 계정이 존재하지 않습니다) [color: "red", labelColor: "white"]
