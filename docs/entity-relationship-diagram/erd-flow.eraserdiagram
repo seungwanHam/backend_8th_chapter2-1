@@ -1,0 +1,37 @@
+flowchart-diagram
+
+colorMode bold
+styleMode plain
+typeface clean
+
+// === 도메인 노드 정의 (필드 제거, 도메인만) ===
+
+User [icon: user, color: orange] {}
+Point [icon: coins, color: blue] {}
+Coupon [icon: gift, color: yellow] {}
+UserCoupon [icon: tag, color: orange] {}
+Product [icon: box, color: green] {}
+ProductOption [icon: list, color: lightgreen] {}
+Order [icon: file-text, color: red] {}
+OrderItem [icon: check-square, color: pink] {}
+Payment [icon: credit-card, color: purple] {}
+PopularProductStat [icon: bar-chart, color: teal] {}
+
+// === 관계 흐름 (컬러 유지, 1:N, 1:1 등 시각 라벨) ===
+
+User > Point: 1:1 [color: "orange"]
+User > Order: 1:N [color: "orange"]
+User > UserCoupon: 1:N [color: "orange"]
+
+Coupon > UserCoupon: 1:N [color: "yellow"]
+
+Order > OrderItem: 1:N [color: "red"]
+Order > Payment: 1:1 [color: "red"]
+
+OrderItem > Product: N:1 [color: "pink"]
+OrderItem > ProductOption: N:1 [color: "pink"]
+
+Product > ProductOption: 1:N [color: "green"]
+Product > PopularProductStat: 1:N [color: "green"]
+
+Payment > UserCoupon: N:1 [color: "purple"]

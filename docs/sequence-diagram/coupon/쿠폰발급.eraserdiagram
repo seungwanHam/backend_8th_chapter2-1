@@ -1,0 +1,28 @@
+sequence-diagram
+
+// 쿠폰 발급
+// styleMode plain
+typeface clean
+
+사용자 [icon: user, color: orange]
+CouponController [icon: code, color: pink]
+CouponService [icon: settings, color: pink]
+CouponStore [icon: database, color: green]
+
+// 정상 흐름 [blue]
+사용자 > CouponController: 쿠폰 발급 요청 (couponType) [color: "blue", labelColor: "white"]
+CouponController > CouponService: 쿠폰 발급 요청 [color: "blue", labelColor: "white"]
+CouponService > CouponStore: 쿠폰 발급 상태 조회 [color: "blue", labelColor: "white"]
+CouponStore --> CouponService: 쿠폰 정보 [color: "blue", labelColor: "white"]
+CouponService > CouponStore: 쿠폰 발급 [color: "blue", labelColor: "white"]
+CouponStore --> CouponService: 발급된 쿠폰 [color: "blue", labelColor: "white"]
+CouponService --> CouponController: 쿠폰 발급 완료 [color: "blue", labelColor: "white"]
+CouponController --> 사용자: 200 OK, 쿠폰 발급 [color: "blue", labelColor: "white"]
+
+// 예외 흐름 1: 쿠폰 발급 실패 [red]
+사용자 > CouponController: 쿠폰 발급 요청 (couponType) [color: "red", labelColor: "white"]
+CouponController > CouponService: 쿠폰 발급 요청 [color: "red", labelColor: "white"]
+CouponService > CouponStore: 쿠폰 발급 상태 조회 [color: "red", labelColor: "white"]
+CouponStore --> CouponService: 쿠폰 발급 불가 [color: "red", labelColor: "white"]
+CouponService --> CouponController: 예외 전달 → CouponIssueFailedException [color: "red", labelColor: "white"]
+CouponController --> 사용자: 400 Bad Request (쿠폰 발급 실패) [color: "red", labelColor: "white"]
