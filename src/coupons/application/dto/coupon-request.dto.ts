@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsString, IsDate, IsOptional, IsBoolean, Min, MinLength, MaxLength, IsDateString } from 'class-validator';
-import { DiscountType } from '../../domain/coupon.entity';
+import { DiscountType, CouponType } from '../../domain/coupon.entity';
 
 export class CreateCouponDto {
   @IsString()
@@ -47,6 +47,10 @@ export class CreateCouponDto {
   @IsNumber()
   @Min(1)
   totalQuantity?: number;
+
+  @IsOptional()
+  @IsEnum(CouponType)
+  couponType?: CouponType;
 }
 
 export class UpdateCouponDto {
@@ -127,4 +131,10 @@ export class ApplyCouponDto {
   @IsNumber()
   @Min(0)
   orderAmount: number;
+}
+
+// 선착순 쿠폰 발급 DTO 추가
+export class IssueFirstComeCouponDto {
+  @IsString()
+  couponId: string;
 }

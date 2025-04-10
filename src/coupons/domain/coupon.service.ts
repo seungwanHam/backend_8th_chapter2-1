@@ -115,7 +115,7 @@ export class CouponService {
     }
 
     // 쿠폰 수량 검증
-    if (coupon.hasQuantityLimit() && !coupon.hasAvailableQuantity()) {
+    if (coupon.hasQuantityLimit() && !coupon.hasRemainingQuantity()) {
       throw new BusinessRuleException('쿠폰 수량이 모두 소진되었습니다.');
     }
 
@@ -169,5 +169,51 @@ export class CouponService {
     await this.couponRepository.increaseUsedQuantity(userCoupon.couponId);
 
     return { discountAmount };
+  }
+
+  /**
+   * 선착순 쿠폰 발급
+   * 동시성 문제를 해결하기 위해 트랜잭션과 낙관적 락 사용
+   */
+  async issueFirstComeCoupon(userId: string, couponId: string): Promise<UserCoupon> {
+    let transaction;
+    try {
+      transaction = await this.couponRepository.beginTransaction();
+
+      // 1. 쿠폰 정보 조회 (for update)
+      const coupon = await this.getCouponById(couponId);
+
+      // 2. 쿠폰 유효성 검증
+      if (!coupon.isFirstCome()) {
+        throw new BusinessRuleException('선착순 쿠폰이 아닙니다.');
+      }
+
+      if (!coupon.canIssue()) {
+        throw new BusinessRuleException('발급할 수 없는 쿠폰입니다. 기간이 만료되었거나 수량이 소진되었습니다.');
+      }
+
+      // 3. 남은 수량 감소 (데이터베이스 업데이트)
+      await this.couponRepository.decreaseRemainingQuantity(couponId);
+
+      // 4. 사용자에게 쿠폰 발급
+      const userCoupon = await this.couponRepository.issueUserCoupon(userId, couponId, coupon.endDate);
+
+      await this.couponRepository.commitTransaction(transaction);
+
+      return userCoupon;
+    } catch (error) {
+      if (transaction) {
+        await this.couponRepository.rollbackTransaction(transaction);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * 모든 유효한 선착순 쿠폰 조회
+   */
+  async getAvailableFirstComeCoupons(): Promise<Coupon[]> {
+    const coupons = await this.couponRepository.findFirstComeCoupons();
+    return coupons.filter(coupon => coupon.isValid());
   }
 }

@@ -175,6 +175,57 @@ export class CouponRepositoryImpl implements CouponRepository {
     return this.mapToUserCouponEntityWithCoupon(userCoupon);
   }
 
+  /**
+   * 선착순 쿠폰 목록 조회
+   */
+  async findFirstComeCoupons(): Promise<Coupon[]> {
+    const coupons = await this.prisma.coupon.findMany({
+      where: {
+        couponType: 'FIRST_COME',
+        isActive: true,
+      },
+    });
+
+    return coupons.map(this.mapToCouponEntity);
+  }
+
+  /**
+   * 쿠폰 남은 수량 감소 (선착순 쿠폰용)
+   */
+  async decreaseRemainingQuantity(couponId: string): Promise<Coupon> {
+    const coupon = await this.prisma.coupon.update({
+      where: { id: couponId },
+      data: {
+        remainingQuantity: {
+          decrement: 1,
+        },
+      },
+    });
+
+    return this.mapToCouponEntity(coupon);
+  }
+
+  /**
+   * 트랜잭션 시작
+   */
+  async beginTransaction(): Promise<any> {
+    return await this.prisma.$transaction.start();
+  }
+
+  /**
+   * 트랜잭션 커밋
+   */
+  async commitTransaction(tx: any): Promise<void> {
+    await tx.commit();
+  }
+
+  /**
+   * 트랜잭션 롤백
+   */
+  async rollbackTransaction(tx: any): Promise<void> {
+    await tx.rollback();
+  }
+
   private mapToCouponEntity(prismaCoupon: any): Coupon {
     return new Coupon({
       couponId: prismaCoupon.id,

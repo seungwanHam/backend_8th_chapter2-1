@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CouponService } from '../domain/coupon.service';
-import { CreateCouponDto, UpdateCouponDto, CouponQueryDto, IssueCouponDto, ApplyCouponDto } from './dto/coupon-request.dto';
+import { CreateCouponDto, UpdateCouponDto, CouponQueryDto, IssueCouponDto, ApplyCouponDto, IssueFirstComeCouponDto } from './dto/coupon-request.dto';
 import { CouponDto, UserCouponDto, CouponListResponseDto, ApplyCouponResponseDto } from './dto/coupon-response.dto';
 import { plainToInstance } from 'class-transformer';
 
@@ -244,6 +244,73 @@ export class CouponFacade {
       ApplyCouponResponseDto,
       {
         discountAmount: result.discountAmount,
+      },
+      { excludeExtraneousValues: true }
+    );
+  }
+
+  /**
+   * 선착순 쿠폰 발급
+   */
+  async issueFirstComeCoupon(userId: string, dto: IssueFirstComeCouponDto): Promise<UserCouponDto> {
+    const userCoupon = await this.couponService.issueFirstComeCoupon(
+      userId,
+      dto.couponId
+    );
+
+    const userCouponWithCoupon = await this.couponService.getUserCoupon(userCoupon.id);
+
+    return this.mapUserCouponToDto(userCouponWithCoupon);
+  }
+
+  /**
+   * 유효한 선착순 쿠폰 목록 조회
+   */
+  async getAvailableFirstComeCoupons(): Promise<CouponDto[]> {
+    const coupons = await this.couponService.getAvailableFirstComeCoupons();
+
+    return coupons.map(coupon => this.mapCouponToDto(coupon));
+  }
+
+  // 매핑 메서드 추가
+  private mapUserCouponToDto(userCoupon: any): UserCouponDto {
+    return plainToInstance(
+      UserCouponDto,
+      {
+        id: userCoupon.id,
+        userId: userCoupon.userId,
+        coupon: userCoupon.coupon ? this.mapCouponToDto(userCoupon.coupon) : undefined,
+        isUsed: userCoupon.isUsed,
+        usedAt: userCoupon.usedAt,
+        orderId: userCoupon.orderId,
+        issuedAt: userCoupon.issuedAt,
+        expiresAt: userCoupon.expiresAt,
+        isAvailable: userCoupon.isAvailable(),
+      },
+      { excludeExtraneousValues: true }
+    );
+  }
+
+  private mapCouponToDto(coupon: any): CouponDto {
+    return plainToInstance(
+      CouponDto,
+      {
+        couponId: coupon.couponId,
+        code: coupon.code,
+        name: coupon.name,
+        description: coupon.description,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        minOrderAmount: coupon.minOrderAmount,
+        maxDiscountAmount: coupon.maxDiscountAmount,
+        startDate: coupon.startDate,
+        endDate: coupon.endDate,
+        isActive: coupon.isActive,
+        totalQuantity: coupon.totalQuantity,
+        remainingQuantity: coupon.remainingQuantity,
+        usedQuantity: coupon.usedQuantity,
+        couponType: coupon.couponType,
+        createdAt: coupon.createdAt,
       },
       { excludeExtraneousValues: true }
     );

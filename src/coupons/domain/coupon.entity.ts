@@ -3,6 +3,10 @@ export enum DiscountType {
   FIXED_AMOUNT = 'FIXED_AMOUNT',
 }
 
+export enum CouponType {
+  REGULAR = 'REGULAR',      // 일반 쿠폰
+  FIRST_COME = 'FIRST_COME' // 선착순 쿠폰
+}
 export class Coupon {
   couponId: string;
   code: string;
@@ -15,8 +19,10 @@ export class Coupon {
   startDate: Date;
   endDate: Date;
   isActive: boolean;
-  totalQuantity?: number;
+  totalQuantity?: number;   // 총 발급 가능 수량
+  remainingQuantity?: number; // 남은 발급 가능 수량
   usedQuantity: number;
+  couponType: CouponType;   // 쿠폰 타입 추가
   createdAt: Date;
 
   constructor(props: {
@@ -32,7 +38,9 @@ export class Coupon {
     endDate: Date;
     isActive: boolean;
     totalQuantity?: number;
+    remainingQuantity?: number;
     usedQuantity: number;
+    couponType?: CouponType;
     createdAt: Date;
   }) {
     this.couponId = props.couponId;
@@ -47,7 +55,9 @@ export class Coupon {
     this.endDate = props.endDate;
     this.isActive = props.isActive;
     this.totalQuantity = props.totalQuantity;
+    this.remainingQuantity = props.remainingQuantity;
     this.usedQuantity = props.usedQuantity;
+    this.couponType = props.couponType || CouponType.REGULAR;
     this.createdAt = props.createdAt;
   }
 
@@ -60,22 +70,58 @@ export class Coupon {
       this.isActive &&
       now >= this.startDate &&
       now <= this.endDate &&
-      (!this.totalQuantity || this.usedQuantity < this.totalQuantity)
+      this.hasRemainingQuantity()
     );
   }
 
   /**
-   * 쿠폰 수량 제한이 있는지 확인
+   * 선착순 쿠폰인지 확인
+   */
+  isFirstCome(): boolean {
+    return this.couponType === CouponType.FIRST_COME;
+  }
+
+  /**
+   * 수량 제한이 있는지 확인
    */
   hasQuantityLimit(): boolean {
     return !!this.totalQuantity;
   }
 
   /**
-   * 쿠폰 수량이 남아있는지 확인
+   * 남은 수량이 있는지 확인
    */
-  hasAvailableQuantity(): boolean {
-    return !this.hasQuantityLimit() || this.usedQuantity < this.totalQuantity;
+  hasRemainingQuantity(): boolean {
+    if (!this.hasQuantityLimit()) {
+      return true;
+    }
+    return this.remainingQuantity > 0;
+  }
+
+  /**
+   * 쿠폰 발급 가능 여부 확인 (선착순)
+   */
+  canIssue(): boolean {
+    if (!this.isValid()) {
+      return false;
+    }
+
+    // 선착순 쿠폰이고 수량 제한이 있는 경우, 남은 수량을 체크
+    if (this.isFirstCome() && this.hasQuantityLimit()) {
+      return this.hasRemainingQuantity();
+    }
+
+    return true;
+  }
+
+  /**
+   * 쿠폰 발급 시 수량 감소
+   * 동시성 문제를 고려하여 실제 데이터베이스 업데이트는 Repository에서 처리
+   */
+  decreaseRemainingQuantity(): void {
+    if (this.remainingQuantity !== undefined && this.remainingQuantity > 0) {
+      this.remainingQuantity--;
+    }
   }
 
   /**

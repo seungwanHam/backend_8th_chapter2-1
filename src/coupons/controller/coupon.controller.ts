@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Query, Param, Put, UseGuards } from '@nestjs/common';
 import { CouponFacade } from '../application/coupon.facade';
-import { CreateCouponDto, UpdateCouponDto, CouponQueryDto, IssueCouponDto, ApplyCouponDto } from '../application/dto/coupon-request.dto';
+import { CreateCouponDto, UpdateCouponDto, CouponQueryDto, IssueCouponDto, ApplyCouponDto, IssueFirstComeCouponDto } from '../application/dto/coupon-request.dto';
 import { ApiTags, ApiOperation, ApiParam, ApiBody, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
 import { CurrentUser } from '../../auth/decorator/current-user.decorator';
@@ -76,6 +76,26 @@ export class CouponController {
     @Body() dto: IssueCouponDto
   ) {
     return this.couponFacade.issueCouponToUser(userId, dto);
+  }
+
+  @ApiOperation({ summary: '선착순 쿠폰 발급' })
+  @ApiBody({ type: IssueFirstComeCouponDto })
+  @ApiResponse({ status: 201, description: '선착순 쿠폰 발급 성공' })
+  @ApiResponse({ status: 400, description: '쿠폰 발급 실패 (수량 소진 등)' })
+  @UseGuards(JwtAuthGuard)
+  @Post('first-come/issue')
+  async issueFirstComeCoupon(
+    @CurrentUser() userId: string,
+    @Body() dto: IssueFirstComeCouponDto
+  ) {
+    return this.couponFacade.issueFirstComeCoupon(userId, dto);
+  }
+
+  @ApiOperation({ summary: '유효한 선착순 쿠폰 목록 조회' })
+  @ApiResponse({ status: 200, description: '선착순 쿠폰 목록 반환' })
+  @Get('first-come')
+  async getAvailableFirstComeCoupons() {
+    return this.couponFacade.getAvailableFirstComeCoupons();
   }
 
   @ApiOperation({ summary: '쿠폰 적용' })
